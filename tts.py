@@ -269,9 +269,6 @@ def select_edge_voice(
     return voice, resolved_gender, reason
 
 
-
-
-
 def format_edge_rate(rate: str | float | int | None) -> str:
     """Chuyển đổi tốc độ đọc sang định dạng của edge-tts (ví dụ: '+15%', '-10%', '+0%')."""
     if rate is None:

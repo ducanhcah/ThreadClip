@@ -24,31 +24,37 @@
 |---|---|---|
 | **Python** | ≥ 3.10 (3.10 – 3.15) | Bắt buộc tích chọn **"Add Python to PATH"** khi cài |
 | **FFmpeg & FFprobe** | Mới nhất | Cài tự động cực nhanh qua lệnh Windows: `winget install Gyan.FFmpeg` |
-| **Playwright Chromium** | Mới nhất | Tự động cài đặt 100% qua file `install.bat` |
+| **Playwright Chromium** | Mới nhất | Tự động cài đặt 100% qua file `INSTALL.bat` |
 | **Hệ điều hành** | Windows 10 / 11 (64-bit) | Hỗ trợ cả macOS & Linux qua giao diện dòng lệnh (CLI) |
 
 ---
 
-## 🚀 Cài đặt & Chạy
+## 🚀 Cài đặt & Chạy (Cách nhanh nhất trên Windows)
 
-### Cách nhanh nhất trên Windows
-1. Tải file cài đặt **[threads2video_ducanhcah_package.zip](https://github.com/ducanhcah/threads2video_ducanhcah/releases/latest)** trong mục **[Releases](https://github.com/ducanhcah/threads2video_ducanhcah/releases)**.
-2. **Giải nén toàn bộ file ZIP** ra một thư mục mới (Ví dụ: `D:\threads2video_ducanhcah`). **Không chạy trực tiếp bên trong file ZIP.**
-3. Cài đặt **[Python (>= 3.10)](https://www.python.org/downloads/)** nếu máy chưa có *(⚠️ Bắt buộc tích chọn vào ô **"Add Python to PATH"** ở bước cài đặt đầu tiên)*.
-4. Cài đặt **FFmpeg** (nếu máy chưa có) bằng cách mở PowerShell và gõ:
-   ```powershell
-   winget install Gyan.FFmpeg
-   ```
-5. Nhấp đúp chuột vào file **`install.bat`** (chỉ cần chạy **1 lần duy nhất** lúc mới tải về để tự động cài thư viện và Playwright Chromium).
-6. Nhấp đúp file **`run_ui.bat`** để mở giao diện Studio tạo video.
+### 1. Tải dự án về máy tính
+- **Cách 1 (Dễ nhất cho mọi người):** Bấm nút **`<> Code`** màu xanh trên GitHub $\rightarrow$ Chọn **`Download ZIP`** $\rightarrow$ Giải nén toàn bộ ra thư mục trên máy tính (ví dụ: `D:\threads2video_ducanhcah`).
+- **Cách 2 (Dành cho lập trình viên):** Mở terminal và clone bằng lệnh:
+  ```bash
+  git clone https://github.com/ducanhcah/threads2video_ducanhcah.git
+  ```
 
-> ⚠️ **Lưu ý:** Không tải *"Source code (zip)"* nếu bạn muốn sử dụng ngay đầy đủ tài nguyên. File source tự động của GitHub không chứa các video nền nặng (Subway Surfers, Minecraft...); hãy tải đúng file **`threads2video_ducanhcah_package.zip`** ở mục **Releases**.
+### 2. Cài đặt tự động (Chỉ làm 1 lần duy nhất)
+- Nhấp đúp chuột vào file **`INSTALL.bat`**.
+- Hệ thống sẽ **tự động kiểm tra và thiết lập từ A đến Z**:
+  - 🔍 **Kiểm tra Python:** Nếu máy tính chưa có Python, script sẽ hiển thị thông báo hướng dẫn chi tiết, tự động mở trang tải Python chính thức và bạn chỉ cần cài xong rồi chạy lại file là được. *(Lưu ý: nhớ tích chọn "Add Python to PATH")*.
+  - 🎬 **Kiểm tra FFmpeg:** Tự động phát hiện và cài đặt FFmpeg nếu máy chưa có.
+  - 📦 **Cài đặt thư viện:** Tự động nâng cấp pip và cài đặt đầy đủ các gói trong `requirements.txt`.
+  - 🌐 **Cài đặt Playwright Chromium:** Tự động tải trình duyệt không đầu để cào bài viết Threads.
+
+### 3. Mở ứng dụng & Tạo video
+- Nhấp đúp chuột vào file **`threads2video_ducanhcah.bat`** để khởi động giao diện đồ họa Studio.
 
 ---
 
-### Dấu hiệu cài đặt thành công
-Sau khi nhấp đúp `run_ui.bat`:
+### ✅ Dấu hiệu cài đặt thành công
+Sau khi nhấp đúp `threads2video_ducanhcah.bat`:
 - Cửa sổ ứng dụng **`threads2video_ducanhcah`** hiển thị giao diện Dark Mode hiện đại.
+- Ô "Link Threads" sẵn sàng nhận liên kết bài viết.
 - Danh sách video nền (*Subway Surfers, Minecraft, ASMR...*) và nhạc nền hiển thị đầy đủ trong menu chọn.
 - Khung nhật ký bên dưới sẵn sàng ghi nhận tiến trình tạo video.
 
@@ -146,14 +152,13 @@ threads2video_ducanhcah/
 │   ├── sfx/                # 💥 24 hiệu ứng âm thanh meme TikTok (pop, bruh, ting, gasp...)
 │   └── video/              # 🎬 5 video nền gameplay & ASMR (Subway Surfers, Minecraft...)
 ├── output/                 # 🎯 Thư mục xuất video thành phẩm (video.mp4, title.txt, data.json)
-├── run_ui.bat              # 🚀 Nhấp đúp để mở giao diện đồ họa Studio
-├── install.bat             # ⚙️ Script cài đặt tự động môi trường (chạy 1 lần đầu)
+├── threads2video_ducanhcah.bat # 🚀 Nhấp đúp để mở giao diện đồ họa Studio
+├── INSTALL.bat             # ⚙️ Nhấp đúp để cài đặt tự động đầy đủ thư viện (chạy 1 lần đầu)
 ├── gui.py                  # Mã nguồn giao diện người dùng Tkinter Dark Mode
 ├── main.py                 # Script điều phối chính toàn bộ quy trình dựng video
 ├── tts.py                  # Module tổng hợp giọng đọc AI tiếng Việt Edge TTS & tốc độ đọc
 ├── cards.py                # Module dựng thẻ bài viết/bình luận Threads & đóng dấu bản quyền
 ├── text_norm.py            # Bộ từ điển chuẩn hóa Teencode & từ lóng mạng xã hội Gen Z
-├── meme_sfx.py             # Thư viện âm thanh meme TikTok
 ├── sound_designer.py       # Hệ thống phân tích cảm xúc và canh nhịp SFX tự động
 ├── title.py                # Bộ tạo tiêu đề TikTok và hashtag thịnh hành
 ├── video.py                # Xử lý video, ghép cảnh, lặp nền và trộn âm thanh bằng FFmpeg

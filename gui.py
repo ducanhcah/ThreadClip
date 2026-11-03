@@ -3,7 +3,6 @@
 Thiết kế tối ưu:
   - Bảng màu High-Contrast hiện đại, các ô nhập liệu đồng bộ nền tối, chữ rõ nét.
   - Sắp xếp logic theo các khối rõ ràng: Nguồn dữ liệu -> Cấu hình Video/Giọng đọc/Âm thanh -> Nâng cao.
-  - Tích hợp cửa sổ "Cài đặt API AI" trực quan (hỗ trợ Google Gemini, OpenAI, Claude).
   - Tự động mở video sau khi tạo xong, hiển thị Live Terminal Logs.
 """
 from __future__ import annotations

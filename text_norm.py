@@ -1,17 +1,11 @@
-"""Bộ chuẩn hóa và nhận diện từ viết tắt tiếng Việt chuyên sâu (Vietnamese Slang & Text Normalizer).
-
-Hỗ trợ toàn diện các từ viết tắt, tiếng lóng, teencode thịnh hành của Gen Z và giới trẻ
-trên TikTok, Threads, Facebook, Instagram,... Chuyển đổi thành tiếng Việt chuẩn,
-giúp giọng đọc AI (TTS) phát âm tự nhiên 100%, không bị vấp hoặc đánh vần từng chữ cái.
-"""
 from __future__ import annotations
 
 import re
 from typing import Any
 
-# ─── 1. BẢNG CỤM TỪ GHÉP & CÂU CỬA MIỆNG GEN Z (XỬ LÝ TRƯỚC ĐỂ TRÁNH TRÙNG LẶP) ───
+# ─── 1. BẢNG CỤM TỪ GHÉP & CÂU CỬA MIỆNG GEN Z (Ưu tiên xử lý trước) ───
 PHRASE_RULES: list[tuple[re.Pattern, str]] = [
-    # Cảm thán Gen Z & TikTok
+    # Cảm thán & Từ ghép TikTok / Threads
     (re.compile(r"\b(j\s*z\s*tr|j\s*z\s*trùi|j\s*z\s*trui|j\s*z\s*troi|j\s*z)\b", re.IGNORECASE), "gì vậy trời"),
     (re.compile(r"\b(u\s*là\s*tr|u\s*là\s*trời|u\s*la\s*troi|u\s*la\s*tr)\b", re.IGNORECASE), "úi là trời"),
     (re.compile(r"\b(chầm\s*kẽm|cham\s*kem)\b", re.IGNORECASE), "trầm cảm"),
@@ -27,38 +21,45 @@ PHRASE_RULES: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\b(red\s*flag)\b", re.IGNORECASE), "cờ đỏ"),
     (re.compile(r"\b(green\s*flag)\b", re.IGNORECASE), "cờ xanh"),
     (re.compile(r"\b(hổng\s*có|hẻm\s*có|hem\s*có|khum\s*có)\b", re.IGNORECASE), "không có"),
-    (re.compile(r"\b(sao\s*[vz]|s\s*[vz]|thế\s*[vz]|sao\s*dị)\b", re.IGNORECASE), "sao vậy"),
+    (re.compile(r"\b(sao\s*[vz]|s\s*[vz]|thế\s*[vz]|sao\s*dị|gì\s*dợ)\b", re.IGNORECASE), "sao vậy"),
     (re.compile(r"\b(người\s*iu|ngừi\s*iu|ngiu)\b", re.IGNORECASE), "người yêu"),
     (re.compile(r"\b(bạn\s*thân|bthan)\b", re.IGNORECASE), "bạn thân"),
     (re.compile(r"\b(đúng\s*r|đr\s*đó|đr|đúng\s*òi|đrùi)\b", re.IGNORECASE), "đúng rồi"),
     (re.compile(r"\b(rớt\s*nc\s*mắt|rớt\s*nước\s*mắt)\b", re.IGNORECASE), "rớt nước mắt"),
     (re.compile(r"\b(nc\s*mắt)\b", re.IGNORECASE), "nước mắt"),
     (re.compile(r"\b(snvv|hpbd)\b", re.IGNORECASE), "sinh nhật vui vẻ"),
+    (re.compile(r"\b(qtqd|quá\s*trời\s*quá\s*đất)\b", re.IGNORECASE), "quá trời quá đất"),
+    (re.compile(r"\b(páo\s*thù)\b", re.IGNORECASE), "báo thù"),
+    (re.compile(r"\b(thao\s*túng\s*tâm\s*lý)\b", re.IGNORECASE), "thao túng tâm lý"),
 ]
 
-# ─── 2. BIỂU THỨC QUY LUẬT (SỐ ĐO, THỜI GIAN, TIỀN TỆ, TIẾNG CƯỜI, KÉO DÀI TỪ) ─
+# ─── 2. QUY TẮC REGEX (Số đo, tiền tệ, tiếng cười, từ kéo dài) ───
 REGEX_RULES: list[tuple[re.Pattern, Any]] = [
-    # Số + h / h30 -> giờ (ví dụ: 12h -> 12 giờ, 1h30 -> 1 giờ 30)
-    (re.compile(r"\b(\d+)\s*h(\d+)?\b", re.IGNORECASE),
-     lambda m: f"{m.group(1)} giờ" + (f" {m.group(2)}" if m.group(2) else "")),
-    # Số + p -> phút (ví dụ: 15p -> 15 phút, 30p -> 30 phút)
+    # Số + h / h30 -> giờ
+    (
+        re.compile(r"\b(\d+)\s*h(\d+)?\b", re.IGNORECASE),
+        lambda m: f"{m.group(1)} giờ" + (f" {m.group(2)}" if m.group(2) else "")
+    ),
+    # Số + p -> phút
     (re.compile(r"\b(\d+)\s*p\b", re.IGNORECASE), r"\1 phút"),
-    # Số + s -> giây (ví dụ: 30s -> 30 giây)
+    # Số + s -> giây
     (re.compile(r"\b(\d+)\s*s\b", re.IGNORECASE), r"\1 giây"),
-    # Số + k -> nghìn (ví dụ: 50k -> 50 nghìn, 100k -> 100 nghìn)
+    # Số + k -> nghìn
     (re.compile(r"\b(\d+)\s*k\b", re.IGNORECASE), r"\1 nghìn"),
-    # Số + tr / củ -> triệu (ví dụ: 2tr -> 2 triệu, 5 củ -> 5 triệu)
+    # Số + tr / củ -> triệu
     (re.compile(r"\b(\d+)\s*(tr|củ)\b", re.IGNORECASE), r"\1 triệu"),
-    # Số + lít -> trăm nghìn (ví dụ: 2 lít -> 2 trăm nghìn, 5 lít -> 5 trăm nghìn)
+    # Số + lít -> trăm nghìn
     (re.compile(r"\b(\d+)\s*lít\b", re.IGNORECASE), r"\1 trăm nghìn"),
-    # Kéo dài chữ cái teen chat (ví dụ: chánnn -> chán, đẹppp -> đẹp, iuuu -> yêu, xỉuuu -> xỉu)
+
+    # Chuẩn hóa chữ kéo dài (iuuu -> yêu, chánnn -> chán)
     (re.compile(r"\biu{2,}\b", re.IGNORECASE), "yêu"),
     (re.compile(r"\bx[iỉĩ]u{2,}\b", re.IGNORECASE), "xỉu"),
     (re.compile(r"\bchán{2,}\b", re.IGNORECASE), "chán"),
     (re.compile(r"\bđẹp{2,}\b", re.IGNORECASE), "đẹp"),
     (re.compile(r"\b(buồn|bùn){2,}\b", re.IGNORECASE), "buồn"),
     (re.compile(r"\b(vui|zui){2,}\b", re.IGNORECASE), "vui"),
-    # Kaka, hihi, haha, he he, kkk, haizz -> chuẩn hóa phát âm êm tai
+
+    # Tiếng cười / Than thở
     (re.compile(r"\b(ha){2,}\b", re.IGNORECASE), "ha ha"),
     (re.compile(r"\b(hi){2,}\b", re.IGNORECASE), "hi hi"),
     (re.compile(r"\b(he){2,}\b", re.IGNORECASE), "he he"),
@@ -68,9 +69,9 @@ REGEX_RULES: list[tuple[re.Pattern, Any]] = [
     (re.compile(r"\bhuhu+\b", re.IGNORECASE), "hu hu"),
 ]
 
-# ─── 3. TỪ ĐIỂN TỪ VIẾT TẮT ĐƠN LẺ (GEN Z, MXH, TEENCODE & CẢM XÚC GIAO TIẾP) ───
+# ─── 3. TỪ ĐIỂN TỪ VIẾT TẮT ĐƠN LẺ ───
 ABBREVIATIONS: dict[str, str] = {
-    # ── A. Thứ trong tuần & Dịp lễ ──
+    # Dịp lễ / Ngày
     "t2": "thứ hai",
     "t3": "thứ ba",
     "t4": "thứ tư",
@@ -80,11 +81,8 @@ ABBREVIATIONS: dict[str, str] = {
     "cn": "chủ nhật",
     "sn": "sinh nhật",
 
-    # ── B. Cảm xúc, Giao tiếp & Tình cảm (chuẩn theo bộ SLANG_MAP) ──
+    # Cảm xúc / Đồng ý
     "iu": "yêu",
-    "iuu": "yêu",
-    "iuuu": "yêu",
-    "ye": "yêu",
     "thik": "thích",
     "thw": "thương",
     "mún": "muốn",
@@ -102,30 +100,8 @@ ABBREVIATIONS: dict[str, str] = {
     "okei": "đồng ý",
     "okey": "đồng ý",
     "okela": "đồng ý",
-    "dcmm": "được mà",
-    "vl": "rất",
-    "vcl": "rất",
-    "vler": "rất",
-    "vkl": "rất",
-    "vle": "rất",
-    "vcc": "rất",
-    "vchuong": "vãi chưởng",
-    "vcoi": "rất",
-    "vloz": "rất",
-    "vlon": "rất",
-    "xỉu": "xỉu",
-    "xĩu": "xỉu",
-    "géc": "ghét",
-    "gécc": "ghét",
-    "bùn": "buồn",
-    "pùn": "buồn",
-    "zui": "vui",
-    "quó": "quá",
-    "wa": "quá",
-    "qá": "quá",
-    "wá": "quá",
 
-    # ── C. Xưng hô & Nhân xưng ──
+    # Nhân xưng
     "t": "tao",
     "m": "mình",
     "mk": "mình",
@@ -148,7 +124,6 @@ ABBREVIATIONS: dict[str, str] = {
     "nyc": "người yêu cũ",
     "ex": "người yêu cũ",
     "cr": "crush",
-    "crush": "crush",
     "hs": "học sinh",
     "sv": "sinh viên",
     "gv": "giáo viên",
@@ -157,9 +132,8 @@ ABBREVIATIONS: dict[str, str] = {
     "ph": "phụ huynh",
     "ac": "anh chị",
     "ace": "anh chị em",
-    "th": "thằng",
 
-    # ── D. Phủ định & Khẳng định ──
+    # Phủ định / Khẳng định / Liên từ
     "ko": "không",
     "k": "không",
     "kh": "không",
@@ -173,44 +147,35 @@ ABBREVIATIONS: dict[str, str] = {
     "khum": "không",
     "khong": "không",
     "hăm": "không",
+    "kbt": "không biết",
+    "kcn": "không sao đâu",
     "đc": "được",
     "dc": "được",
     "dk": "được không",
     "đk": "được không",
     "chx": "chưa",
     "chwa": "chưa",
+    "ch": "chưa",
     "xog": "xong",
     "r": "rồi",
     "gòi": "rồi",
     "rùi": "rồi",
     "zồi": "rồi",
-    "vch": "vãi chưởng",
-    "đhs": "đéo hiểu sao",
-    "dhs": "đéo hiểu sao",
-    "lsao": "làm sao",
-    "nnao": "như nào",
-    "vcl": "vãi cả lờ",
-    "nhm": "nhưng mà",   
+    "nhm": "nhưng mà",
     "nma": "nhưng mà",
     "nm": "nhưng mà",
+    "nhg": "nhưng",
+    "lsao": "làm sao",
+    "nnao": "như nào",
     "bgio": "bao giờ",
     "tbay": "tụi bây",
-    "ch": "chưa",
-    "kgi": "kiểu gì",
-    "v1": "vòng 1",
     "trc": "trước",
-    "ông": "ông",
-
-
-    # ── E. Từ nghi vấn, Liên từ & Trạng từ ──
     "j": "gì",
     "giè": "gì",
     "s": "sao",
     "ntn": "như thế nào",
     "bth": "bình thường",
     "bthg": "bình thường",
-    "bik": "biết",
-    "pít": "biết",
     "trùi": "trời",
     "chời": "trời",
     "chòi": "trời",
@@ -220,8 +185,6 @@ ABBREVIATIONS: dict[str, str] = {
     "vs": "với",
     "lm": "làm",
     "lèm": "làm",
-    "nhg": "nhưng",
-    "nma": "nhưng mà",
     "thui": "thôi",
     "thoy": "thôi",
     "chg": "chẳng",
@@ -243,7 +206,7 @@ ABBREVIATIONS: dict[str, str] = {
     "cừi": "cười",
     "đou": "đâu",
 
-    # ── F. Khen ngợi, Vẻ ngoài & Dễ thương ──
+    # Khen ngợi & Ngoại hình
     "xink": "xinh",
     "xik": "xinh",
     "xưn": "xinh",
@@ -252,7 +215,7 @@ ABBREVIATIONS: dict[str, str] = {
     "kute": "đáng yêu",
     "cute": "đáng yêu",
 
-    # ── G. Mạng xã hội, Công nghệ & Mua sắm ──
+    # Mạng xã hội & Mua sắm
     "đt": "điện thoại",
     "dt": "điện thoại",
     "đth": "điện thoại",
@@ -302,8 +265,9 @@ ABBREVIATIONS: dict[str, str] = {
     "hqua": "hôm qua",
     "hqa": "hôm qua",
     "nmai": "ngày mai",
+    "dky": "đăng ký",
 
-    # ── H. Lóng Gen Z & Hot Trend TikTok ──
+    # Slang Gen Z mới
     "simp": "mê muội",
     "cook": "cút",
     "cringe": "ngượng chín mặt",
@@ -317,11 +281,23 @@ ABBREVIATIONS: dict[str, str] = {
     "gke": "ghê",
     "mlem": "ngon lành",
     "keo": "keo lỳ",
+    "flex": "khoe khoang",
+    "slay": "xuất sắc",
 
-    # ── I. Cảm thán & Giảm nhẹ từ ngữ mạng (đọc êm tai) ──
-    "vđ": "rất",
+    # Cảm thán / Nói giảm nói tránh
+    "vđ": "vãi đạn",
+    "vch": "vãi chưởng",
+    "vchuong": "vãi chưởng",
     "clgt": "cái quái gì thế",
     "cđg": "cái quái gì thế",
+    "đhs": "đéo hiểu sao",
+    "dhs": "đéo hiểu sao",
+    "tđn": "thế đéo nào",
+    "vl": "vãi lờ",
+    "vcl": "vãi cả lờ",
+    "vkl": "vãi cả lờ",
+    "vloz": "vãi lờ",
+    "vlon": "vãi lờ",
     "đm": "đậu má",
     "dm": "đậu má",
     "đmm": "đậu má",
@@ -329,14 +305,7 @@ ABBREVIATIONS: dict[str, str] = {
     "dcm": "đậu má",
     "đkm": "đậu má",
     "dkm": "đậu má",
-    "đù": "đù má",
     "hmu": "hu hu",
-    "tr oi": "trời ơi",
-    "trời ui": "trời ơi",
-    "trùi ui": "trời ơi",
-    "tr má": "trời má",
-    "trời má": "trời má",
-    "chời má": "trời má",
     "tks": "cảm ơn",
     "thanks": "cảm ơn",
     "thx": "cảm ơn",
@@ -344,7 +313,6 @@ ABBREVIATIONS: dict[str, str] = {
     "pls": "làm ơn",
 }
 
-# Sắp xếp các từ khóa đơn lẻ theo độ dài giảm dần để ưu tiên từ dài trước
 _SORTED_KEYS = sorted(ABBREVIATIONS.keys(), key=len, reverse=True)
 _WORD_REGEX = re.compile(
     r"(?<!\w)(" + "|".join(re.escape(k) for k in _SORTED_KEYS) + r")(?!\w)",
@@ -353,32 +321,24 @@ _WORD_REGEX = re.compile(
 
 
 def normalize_vietnamese_text(text: str) -> str:
-    """Chuẩn hóa văn bản tiếng Việt: giải mã từ viết tắt và lóng Gen Z thành từ đầy đủ.
-    
-    Args:
-        text: Văn bản bài viết hoặc bình luận gốc từ Threads/TikTok/Facebook.
-        
-    Returns:
-        Văn bản đã được chuẩn hóa để giọng AI (TTS) đọc trôi chảy, tự nhiên 100%.
-    """
+    """Chuẩn hóa văn bản tiếng Việt: giải mã từ viết tắt và lóng Gen Z thành từ đầy đủ."""
     if not text:
         return ""
 
     result = text
 
-    # Bước 1. Khớp các cụm từ ghép Gen Z / MXH (j z tr, u là tr, chầm kẽm, check var...)
+    # Bước 1. Khớp cụm từ ghép
     for pattern, repl in PHRASE_RULES:
         result = pattern.sub(repl, result)
 
-    # Bước 2. Áp dụng quy tắc regex (số đo: 12h, 15p, 50k, 2tr, 3 củ, 2 lít, haizz, haha...)
+    # Bước 2. Áp dụng quy tắc regex
     for pattern, repl in REGEX_RULES:
         result = pattern.sub(repl, result)
 
-    # Bước 3. Áp dụng từ điển từ viết tắt đơn lẻ (giữ nguyên chữ hoa/thường hợp lý)
+    # Bước 3. Áp dụng từ điển từ đơn
     def _replace_word(match: re.Match) -> str:
         w = match.group(0).lower()
         full = ABBREVIATIONS.get(w, match.group(0))
-        # Nếu từ gốc viết hoa chữ cái đầu -> viết hoa kết quả
         if match.group(0).istitle():
             return full.capitalize()
         if match.group(0).isupper() and len(w) <= 3:
@@ -387,6 +347,5 @@ def normalize_vietnamese_text(text: str) -> str:
 
     result = _WORD_REGEX.sub(_replace_word, result)
 
-    # Bước 4. Làm sạch khoảng trắng thừa
-    result = re.sub(r"[ \t]+", " ", result).strip()
-    return result
+    # Bước 4. Dọn dẹp khoảng trắng
+    return re.sub(r"[ \t]+", " ", result).strip()

@@ -21,7 +21,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 import cards
-import meme_sfx
 from sound_designer import SoundDesigner, SoundCue, format_cue_report
 import title as titlemod
 import tts
@@ -95,7 +94,6 @@ def main():
     # ── Playwright / scraper ──────────────────────────────────────────────────
     ap.add_argument("--storage-state", help="File đăng nhập Playwright (xem README)")
     ap.add_argument("--show-browser", action="store_true", help="Hiện cửa sổ trình duyệt khi cào")
-    ap.add_argument("--ai-title", action="store_true", help=argparse.SUPPRESS)
 
     args = ap.parse_args()
     load_dotenv(ROOT / ".env")
