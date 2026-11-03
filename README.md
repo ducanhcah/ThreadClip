@@ -8,6 +8,7 @@
 ## 📸 Demo thực tế
 
 <img width="1003" height="681" alt="image" src="https://github.com/user-attachments/assets/3fc7afff-e8a3-4dcc-9713-c73e5250b64b" />
+<img width="604" height="1074" alt="image" src="https://github.com/user-attachments/assets/f5002287-b494-4181-9c93-65b2c187fbe3" />
 
 ---
 
