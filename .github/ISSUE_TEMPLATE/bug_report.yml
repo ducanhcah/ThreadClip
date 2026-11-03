@@ -1,0 +1,46 @@
+name: 🐛 Báo lỗi (Bug Report)
+description: Báo cáo sự cố khi tạo video với ThreadClip
+title: "[LỖI]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn đã báo cáo sự cố! Vui lòng cung cấp thông tin bên dưới để chúng tôi hỗ trợ bạn nhanh nhất.
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Hệ điều hành của bạn
+      description: Bạn đang sử dụng phiên bản Windows nào?
+      options:
+        - Windows 11 (64-bit)
+        - Windows 10 (64-bit)
+        - Khác
+    validations:
+      required: true
+
+  - type: input
+    id: thread_url
+    attributes:
+      label: Link bài viết Threads bị lỗi
+      description: Dán đường dẫn bài viết Threads bạn đang cố gắng tạo video
+      placeholder: https://www.threads.com/@user/post/...
+    validations:
+      required: false
+
+  - type: textarea
+    id: error_log
+    attributes:
+      label: Mã lỗi / Nhật ký chi tiết (Log)
+      description: Bấm nút "Copy lỗi" trên giao diện hoặc sao chép nội dung log lỗi dán vào đây
+      placeholder: Dán mã lỗi ở đây...
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả thêm
+      description: Điều gì đã xảy ra trước khi lỗi xuất hiện?
+

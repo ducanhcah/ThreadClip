@@ -9,11 +9,17 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import re
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
+from pathlib import Path
 
 import requests
+
+_runtime_browsers = Path(__file__).resolve().parent.parent / "runtime" / "browsers"
+if _runtime_browsers.exists():
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(_runtime_browsers))
 
 
 @dataclass
@@ -299,7 +305,7 @@ def fetch_thread(url: str, top: int = 5, max_chars: int = 300,
     payloads: list = []
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=headless)
+        browser = pw.chromium.launch(headless=headless, args=["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"])
         try:
             ctx = browser.new_context(
                 locale="vi-VN",

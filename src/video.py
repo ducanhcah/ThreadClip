@@ -19,7 +19,9 @@ def _find_and_add_ffmpeg_to_path():
     if shutil.which("ffmpeg") and shutil.which("ffprobe"):
         return
 
-    candidate_paths: list[str] = []
+    candidate_paths: list[str] = [
+        str(Path(__file__).resolve().parent.parent / "runtime" / "ffmpeg"),
+    ]
 
     # 1. Quét từ WinGet Packages (nơi winget install Gyan.FFmpeg cài đặt)
     local_app_data = os.getenv("LOCALAPPDATA")

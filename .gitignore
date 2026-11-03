@@ -13,6 +13,8 @@ output/
 work/
 state.json
 .env
+.config.json
+runtime/
 
 # Large gameplay videos (> 100MB exceed GitHub file limit)
 # Users can download full package from GitHub Releases

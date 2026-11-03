@@ -6,11 +6,16 @@ chế độ sáng/tối (Dark Mode). Ảnh nền (lưới + gradient) vẽ bằn
 from __future__ import annotations
 
 import html
+import os
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 from scraper import Post
+
+_runtime_browsers = Path(__file__).resolve().parent.parent / "runtime" / "browsers"
+if _runtime_browsers.exists():
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(_runtime_browsers))
 
 W, H = 1080, 1920
 CARD_W = 920
@@ -184,7 +189,7 @@ def render_cards(main: Post, comments: list[Post], out_dir: Path,
     icons = get_icons(dark=dark)
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        browser = pw.chromium.launch(args=["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"])
         try:
             page = browser.new_page(viewport={"width": CARD_W + 40, "height": 2600},
                                     device_scale_factor=1)

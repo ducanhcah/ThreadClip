@@ -367,7 +367,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Chuyên gia AI Phân tích Lời thoại & Đề xuất Sound Effects (SFX)")
     parser.add_argument("text", nargs="*", help="Câu thoại cần phân tích")
     parser.add_argument("--file", help="File văn bản chứa transcript / kịch bản (mỗi dòng một câu)")
-    parser.add_argument("--sfx-dir", default=str(Path(__file__).parent / "assets" / "sfx"),
+    parser.add_argument("--sfx-dir", default=str(Path(__file__).resolve().parent.parent / "assets" / "sfx"),
                         help="Thư mục chứa SFX")
     args = parser.parse_args()
 

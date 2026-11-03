@@ -27,11 +27,14 @@ import tts
 import video
 from scraper import Thread, fetch_thread, shortcode_from_url, is_spam_or_ad
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parent.parent
+SRC_DIR = Path(__file__).resolve().parent
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 
 def main():
-    ap = argparse.ArgumentParser(description="threads2video_ducanhcah: Threads -> video TikTok 9:16")
+    ap = argparse.ArgumentParser(description="ThreadClip: Biến bài viết Threads thành video TikTok triệu view")
     ap.add_argument("url", nargs="?", help="Link bài Threads")
     ap.add_argument("--from-json", help="Dùng file data.json đã lưu thay vì cào lại")
     ap.add_argument("--top", type=int, default=5, help="Số bình luận nổi bật (mặc định 5)")
@@ -346,7 +349,7 @@ def main():
 
     # 5. Ghép nối video
     print("[4/5] Đang ghép video tổng hợp…")
-    final = out / "video.mp4"
+    final = out / f"ThreadClip_{name}.mp4"
     if args.with_music:
         joined = work / "joined.mp4"
         video.concat(scenes, joined)

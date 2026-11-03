@@ -1,0 +1,99 @@
+name: Build Windows Portable Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Prepare Portable Staging Directory
+        shell: pwsh
+        run: |
+          $dist = "ThreadClip_Portable"
+          New-Item -ItemType Directory -Force -Path "$dist\runtime\python"
+          New-Item -ItemType Directory -Force -Path "$dist\runtime\ffmpeg"
+          New-Item -ItemType Directory -Force -Path "$dist\runtime\browsers"
+
+          # 1. Download & Extract Python 3.11 Embeddable
+          Write-Host "Downloading Python Embeddable..."
+          $pyZip = "python-embed.zip"
+          Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile $pyZip
+          Expand-Archive -Path $pyZip -DestinationPath "$dist\runtime\python" -Force
+          Remove-Item $pyZip -Force
+
+          # Enable site-packages in python._pth
+          $pth = Get-Item "$dist\runtime\python\*._pth" | Select-Object -First 1
+          if ($pth) {
+            (Get-Content $pth.FullName) -replace '#import site', 'import site' | Set-Content $pth.FullName
+          }
+
+          # 2. Install pip inside embeddable python
+          Write-Host "Installing pip in embeddable Python..."
+          Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile "get-pip.py"
+          & "$dist\runtime\python\python.exe" get-pip.py --no-warn-script-location
+          Remove-Item "get-pip.py" -Force
+
+          # 3. Install requirements
+          Write-Host "Installing requirements..."
+          & "$dist\runtime\python\python.exe" -m pip install -r requirements.txt --no-warn-script-location
+
+          # 4. Install Playwright Chromium into local directory
+          Write-Host "Installing Playwright Chromium..."
+          $env:PLAYWRIGHT_BROWSERS_PATH = "$((Get-Item .).FullName)\$dist\runtime\browsers"
+          & "$dist\runtime\python\python.exe" -m playwright install chromium
+
+          # 5. Download FFmpeg Essentials
+          Write-Host "Downloading FFmpeg..."
+          $ffZip = "ffmpeg.zip"
+          Invoke-WebRequest -Uri "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip" -OutFile $ffZip
+          Expand-Archive -Path $ffZip -DestinationPath "ff_temp" -Force
+          $bin = Get-ChildItem -Path "ff_temp" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1
+          if ($bin) {
+            Copy-Item "$($bin.DirectoryName)\ffmpeg.exe" "$dist\runtime\ffmpeg\" -Force
+            Copy-Item "$($bin.DirectoryName)\ffprobe.exe" "$dist\runtime\ffmpeg\" -Force
+          }
+          Remove-Item "ff_temp" -Recurse -Force
+          Remove-Item $ffZip -Force
+
+          # 6. Copy Project Source & Assets
+          Write-Host "Copying project files..."
+          Copy-Item "CHAY.bat" "$dist\" -Force
+          Copy-Item "requirements.txt" "$dist\" -Force
+          Copy-Item "README.md" "$dist\" -Force
+          Copy-Item "LICENSE" "$dist\" -Force -ErrorAction SilentlyContinue
+          Copy-Item "CREDITS.md" "$dist\" -Force -ErrorAction SilentlyContinue
+          Copy-Item "src" "$dist\src" -Recurse -Force
+          Copy-Item "assets" "$dist\assets" -Recurse -Force
+          Copy-Item "docs" "$dist\docs" -Recurse -Force
+          Copy-Item "sample" "$dist\sample" -Recurse -Force
+
+          # 7. Compress into portable zip
+          Write-Host "Creating portable archive..."
+          Compress-Archive -Path "$dist\*" -DestinationPath "ThreadClip_Windows_Portable.zip" -Force
+          Write-Host "Portable package created: ThreadClip_Windows_Portable.zip"
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ThreadClip_Windows_Portable.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
