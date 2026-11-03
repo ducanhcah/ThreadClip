@@ -1,0 +1,77 @@
+{
+  "url": "https://www.threads.com/@its.hgie/post/SAMPLE",
+  "main": {
+    "code": "SAMPLE",
+    "username": "its.hgie",
+    "text": "topic:\n- Những thói quen hoặc mẹo nhỏ giúp cuộc sống của bạn tốt lên mỗi ngày?",
+    "likes": 15400,
+    "replies": 620,
+    "reposts": 3100,
+    "shares": 1450,
+    "views": 680000,
+    "taken_at": 1767052800,
+    "avatar_b64": null
+  },
+  "comments": [
+    {
+      "code": "c1",
+      "username": "minh.tran",
+      "text": "Uống đủ nước mỗi ngày và ngủ trước 23h. Nghe đơn giản nhưng mình thấy sức khỏe và tinh thần đổi hẳn luôn ấy!",
+      "likes": 4200,
+      "replies": 18,
+      "reposts": 55,
+      "shares": 12,
+      "views": null,
+      "taken_at": 1767060000,
+      "avatar_b64": null
+    },
+    {
+      "code": "c2",
+      "username": "an_nhien",
+      "text": "Học cách nói 'Không' dứt khoát với những việc mình không muốn làm. Không cần áy náy hay giải thích quá nhiều.",
+      "likes": 2800,
+      "replies": 8,
+      "reposts": 23,
+      "shares": 5,
+      "views": null,
+      "taken_at": 1767063600,
+      "avatar_b64": null
+    },
+    {
+      "code": "c3",
+      "username": "quang.dev",
+      "text": "Quy tắc 2 phút: Việc gì làm dưới 2 phút thì làm ngay lập tức, đừng để dồn lại thành núi việc.",
+      "likes": 1950,
+      "replies": 6,
+      "reposts": 14,
+      "shares": 4,
+      "views": null,
+      "taken_at": 1767067200,
+      "avatar_b64": null
+    },
+    {
+      "code": "c4",
+      "username": "linh_chi_99",
+      "text": "Ghi chép chi tiêu mỗi tối. Từ khi biết tiền mình đi đâu thì cuối tháng không còn cảnh ăn mì tôm nữa haha.",
+      "likes": 1420,
+      "replies": 4,
+      "reposts": 9,
+      "shares": 2,
+      "views": null,
+      "taken_at": 1767070800,
+      "avatar_b64": null
+    },
+    {
+      "code": "c5",
+      "username": "khoa_hoc_vui",
+      "text": "Mỗi sáng dành ra 15 phút tập thể dục nhẹ hoặc đi bộ ngoài trời. Não tỉnh táo gấp 10 lần uống cafe!",
+      "likes": 980,
+      "replies": 3,
+      "reposts": 7,
+      "shares": 1,
+      "views": null,
+      "taken_at": 1767074400,
+      "avatar_b64": null
+    }
+  ]
+}

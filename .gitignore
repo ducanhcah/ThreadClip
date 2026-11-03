@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large media packages & zip
+*.zip
+*.tar.gz
+*.rar
+
+# Output rendered videos & temp files
+output/
+work/
+state.json
+.env
+
+# Large gameplay videos (> 100MB exceed GitHub file limit)
+# Users can download full package from GitHub Releases
+assets/video/*.mp4
+!assets/video/.gitkeep
+
