@@ -9,9 +9,6 @@
 
 <img width="1003" height="681" alt="image" src="https://github.com/user-attachments/assets/3fc7afff-e8a3-4dcc-9713-c73e5250b64b" />
 
-
-*(💡 **Hướng dẫn tạo ảnh GIF demo động:** Bạn có thể mở ứng dụng, dùng phần mềm [ScreenToGif](https://www.screentogif.com/) quay lại 5 giây thao tác dán link $\rightarrow$ bấm tạo video $\rightarrow$ lưu thành `assets/demo.gif` và thay vào đây nhé!)*
-
 ---
 
 ## ⚡ Tải về sử dụng ngay (Dành cho Windows)
