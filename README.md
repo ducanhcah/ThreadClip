@@ -203,8 +203,8 @@ Dự án đã chuẩn bị sẵn tài nguyên phong phú trong thư mục `asset
 - 👑 **Tác giả:** **ducanhcah**
 - 🎬 **Dự án:** **threads2video_ducanhcah**
 - 🛡️ **Bản quyền:** Thuộc sở hữu của **ducanhcah**
-- 🌐 **Kênh nội dung:** *(Cập nhật link TikTok / Threads / Facebook của bạn tại đây)*
-- 💬 **Hỗ trợ / Góp ý:** Liên hệ qua Zalo / Telegram / Kênh cá nhân
+- 🌐 **Kênh nội dung:** https://www.facebook.com/duahn.22
+- 💬 **Instagram:** @duahn_22
 
 ---
 *Made with ❤️ by **ducanhcah** — Tối ưu hóa cho Content Creator TikTok, Reels & Shorts.*
