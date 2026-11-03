@@ -29,17 +29,20 @@
 
 ---
 
-## 🚀 Cài đặt & Chạy (Cách nhanh nhất trên Windows)
+## 🚀 Cài đặt & Chạy
 
-### Dành cho người nhận file ZIP
-1. **Giải nén toàn bộ file ZIP** ra một thư mục mới (Ví dụ: `D:\threads2video_ducanhcah`). **Không chạy trực tiếp bên trong file ZIP.**
-2. Cài đặt **[Python (>= 3.10)](https://www.python.org/downloads/)** nếu máy chưa có *(⚠️ Nhớ tích chọn vào ô **"Add Python to PATH"** ở bước đầu tiên khi cài đặt)*.
-3. Cài đặt **FFmpeg** (nếu máy chưa có) bằng cách mở PowerShell và gõ:
+### Cách nhanh nhất trên Windows
+1. Tải file cài đặt **[threads2video_ducanhcah_package.zip](https://github.com/ducanhcah/threads2video_ducanhcah/releases/latest)** trong mục **[Releases](https://github.com/ducanhcah/threads2video_ducanhcah/releases)**.
+2. **Giải nén toàn bộ file ZIP** ra một thư mục mới (Ví dụ: `D:\threads2video_ducanhcah`). **Không chạy trực tiếp bên trong file ZIP.**
+3. Cài đặt **[Python (>= 3.10)](https://www.python.org/downloads/)** nếu máy chưa có *(⚠️ Bắt buộc tích chọn vào ô **"Add Python to PATH"** ở bước cài đặt đầu tiên)*.
+4. Cài đặt **FFmpeg** (nếu máy chưa có) bằng cách mở PowerShell và gõ:
    ```powershell
    winget install Gyan.FFmpeg
    ```
-4. Nhấp đúp chuột vào file **`install.bat`** (chỉ cần chạy **1 lần duy nhất** lúc mới tải về để tự động cài môi trường & trình duyệt Playwright).
-5. Nhấp đúp file **`run_ui.bat`** để mở giao diện tạo video.
+5. Nhấp đúp chuột vào file **`install.bat`** (chỉ cần chạy **1 lần duy nhất** lúc mới tải về để tự động cài thư viện và Playwright Chromium).
+6. Nhấp đúp file **`run_ui.bat`** để mở giao diện Studio tạo video.
+
+> ⚠️ **Lưu ý:** Không tải *"Source code (zip)"* nếu bạn muốn sử dụng ngay đầy đủ tài nguyên. File source tự động của GitHub không chứa các video nền nặng (Subway Surfers, Minecraft...); hãy tải đúng file **`threads2video_ducanhcah_package.zip`** ở mục **Releases**.
 
 ---
 
@@ -48,13 +51,6 @@ Sau khi nhấp đúp `run_ui.bat`:
 - Cửa sổ ứng dụng **`threads2video_ducanhcah`** hiển thị giao diện Dark Mode hiện đại.
 - Danh sách video nền (*Subway Surfers, Minecraft, ASMR...*) và nhạc nền hiển thị đầy đủ trong menu chọn.
 - Khung nhật ký bên dưới sẵn sàng ghi nhận tiến trình tạo video.
-
----
-
-### Dành cho người muốn gửi dự án cho người khác
-- Chỉ cần nhấp đúp file **`package_project.bat`**. 
-- Hệ thống sẽ tự động quét, loại bỏ các file tạm/rác và đóng gói thành một file nén duy nhất: **`threads2video_ducanhcah_package.zip`**.
-- Bạn chỉ cần gửi file zip này (qua Zalo, Google Drive, Telegram...) cho bạn bè hoặc cộng sự là họ có thể sử dụng ngay theo hướng dẫn ở trên!
 
 ---
 
@@ -152,7 +148,6 @@ threads2video_ducanhcah/
 ├── output/                 # 🎯 Thư mục xuất video thành phẩm (video.mp4, title.txt, data.json)
 ├── run_ui.bat              # 🚀 Nhấp đúp để mở giao diện đồ họa Studio
 ├── install.bat             # ⚙️ Script cài đặt tự động môi trường (chạy 1 lần đầu)
-├── package_project.bat     # 📦 Script đóng gói toàn bộ dự án thành file ZIP để gửi cho người khác
 ├── gui.py                  # Mã nguồn giao diện người dùng Tkinter Dark Mode
 ├── main.py                 # Script điều phối chính toàn bộ quy trình dựng video
 ├── tts.py                  # Module tổng hợp giọng đọc AI tiếng Việt Edge TTS & tốc độ đọc
@@ -163,7 +158,6 @@ threads2video_ducanhcah/
 ├── title.py                # Bộ tạo tiêu đề TikTok và hashtag thịnh hành
 ├── video.py                # Xử lý video, ghép cảnh, lặp nền và trộn âm thanh bằng FFmpeg
 ├── scraper.py              # Trình cào dữ liệu bài viết & bình luận Threads qua Playwright
-├── package.py              # Script tự động nén và đóng gói dự án
 ├── requirements.txt        # Danh sách thư viện Python cần thiết
 └── README.md               # Tài liệu hướng dẫn sử dụng này
 ```
