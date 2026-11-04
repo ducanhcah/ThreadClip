@@ -44,6 +44,12 @@ POS_MAP = {
 }
 REV_POS_MAP = {v: k for k, v in POS_MAP.items()}
 
+TTS_ENGINE_MAP = {
+    "Edge Neural (Chuẩn tự nhiên)": "edge",
+    "Google TTS (Cực nhanh, chống lag)": "gtts",
+}
+REV_TTS_ENGINE_MAP = {v: k for k, v in TTS_ENGINE_MAP.items()}
+
 
 def load_config() -> dict:
     default_config = {
@@ -56,6 +62,8 @@ def load_config() -> dict:
         "enable_video_bg": True,
         "with_outro": True,
         "custom_video": "",
+        "mask_user": False,
+        "tts_engine": "edge",
     }
     if CONFIG_FILE.exists():
         try:
@@ -353,8 +361,18 @@ class ThreadClipApp(tk.Tk):
 
         tk.Label(r2, text="Tốc độ đọc:", font=("Segoe UI", 9), bg=self.c_card, fg=self.c_text).pack(side="left", padx=(14, 6))
         self.rate_var = tk.StringVar(value=self.cfg.get("rate", "1.15x"))
-        rate_cb = ttk.Combobox(r2, textvariable=self.rate_var, state="readonly", width=10, values=["0.85x", "0.95x", "1.0x", "1.1x", "1.15x", "1.2x", "1.25x"])
+        rate_cb = ttk.Combobox(r2, textvariable=self.rate_var, state="readonly", width=8, values=["0.85x", "0.95x", "1.0x", "1.1x", "1.15x", "1.2x", "1.25x"])
         rate_cb.pack(side="left")
+
+        tk.Label(r2, text="Giọng đọc:", font=("Segoe UI", 9), bg=self.c_card, fg=self.c_text).pack(side="left", padx=(14, 6))
+        raw_engine = self.cfg.get("tts_engine", "edge")
+        init_engine_label = REV_TTS_ENGINE_MAP.get(raw_engine, list(TTS_ENGINE_MAP.keys())[0])
+        self.tts_engine_label_var = tk.StringVar(value=init_engine_label)
+        engine_cb = ttk.Combobox(
+            r2, textvariable=self.tts_engine_label_var, state="readonly", width=25,
+            values=list(TTS_ENGINE_MAP.keys())
+        )
+        engine_cb.pack(side="left")
 
         # Hàng 3: Bật/Tắt Nhạc nền, Video nền & Màn Outro
         r3 = tk.Frame(self.adv_body, bg=self.c_card)
@@ -377,7 +395,14 @@ class ThreadClipApp(tk.Tk):
 
         self.outro_var = tk.BooleanVar(value=self.cfg.get("with_outro", True))
         tk.Checkbutton(
-            r3, text="Màn Outro kêu gọi Follow/Tim ở cuối", variable=self.outro_var,
+            r3, text="Màn Outro", variable=self.outro_var,
+            font=("Segoe UI", 9), bg=self.c_card, fg=self.c_text,
+            selectcolor="#111318", activebackground=self.c_card, activeforeground=self.c_text
+        ).pack(side="left", padx=(0, 14))
+
+        self.mask_user_var = tk.BooleanVar(value=self.cfg.get("mask_user", False))
+        tk.Checkbutton(
+            r3, text="Ẩn danh (Che tên & avatar)", variable=self.mask_user_var,
             font=("Segoe UI", 9), bg=self.c_card, fg=self.c_text,
             selectcolor="#111318", activebackground=self.c_card, activeforeground=self.c_text
         ).pack(side="left")
@@ -509,6 +534,9 @@ class ThreadClipApp(tk.Tk):
         self.cfg["enable_video_bg"] = self.enable_video_bg_var.get()
         self.cfg["with_outro"] = self.outro_var.get()
         self.cfg["custom_video"] = self.custom_vid_var.get().strip()
+        self.cfg["mask_user"] = self.mask_user_var.get()
+        engine_key = TTS_ENGINE_MAP.get(self.tts_engine_label_var.get(), "edge")
+        self.cfg["tts_engine"] = engine_key
         save_config(self.cfg)
 
         # Cập nhật giao diện khi bắt đầu chạy
@@ -533,6 +561,11 @@ class ThreadClipApp(tk.Tk):
 
         if not self.outro_var.get():
             cmd.append("--no-outro")
+
+        if self.mask_user_var.get():
+            cmd.append("--mask-user")
+
+        cmd.extend(["--tts-engine", engine_key])
 
         # Xử lý Video nền
         if not self.enable_video_bg_var.get():

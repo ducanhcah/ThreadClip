@@ -364,7 +364,7 @@ def google_tts_fallback(text: str, out: Path) -> tuple[Path, list[dict[str, Any]
 
 def edge_tts_synthesize(text: str, out: Path, voice: str | None = None,
                         rate: str | float | int = "+0%",
-                        max_retries: int = 5) -> tuple[Path, list[dict[str, Any]]]:
+                        max_retries: int = 2) -> tuple[Path, list[dict[str, Any]]]:
     """Tạo giọng đọc tiếng Việt bằng Microsoft Edge TTS.
 
     Cơ chế kiên cường (Resilience & Auto-recovery):
@@ -395,20 +395,22 @@ def edge_tts_synthesize(text: str, out: Path, voice: str | None = None,
                     await asyncio.sleep(0.4)
 
                 communicate = edge_tts.Communicate(
-                    text, cur_voice, rate=rate_str, connect_timeout=15, receive_timeout=60
+                    text, cur_voice, rate=rate_str, connect_timeout=5, receive_timeout=10
                 )
-                boundaries: list[dict[str, Any]] = []
-
-                with open(out, "wb") as f:
-                    async for chunk in communicate.stream():
-                        if chunk["type"] == "audio":
-                            f.write(chunk["data"])
-                        elif chunk["type"] == "SentenceBoundary":
-                            boundaries.append({
-                                "text": chunk.get("text", ""),
-                                "offset": chunk.get("offset", 0) / 10_000_000,
-                                "duration": chunk.get("duration", 0) / 10_000_000,
-                            })
+                async def _stream():
+                    b_list: list[dict[str, Any]] = []
+                    with open(out, "wb") as f:
+                        async for chunk in communicate.stream():
+                            if chunk["type"] == "audio":
+                                f.write(chunk["data"])
+                            elif chunk["type"] == "SentenceBoundary":
+                                b_list.append({
+                                    "text": chunk.get("text", ""),
+                                    "offset": chunk.get("offset", 0) / 10_000_000,
+                                    "duration": chunk.get("duration", 0) / 10_000_000,
+                                })
+                    return b_list
+                boundaries = await asyncio.wait_for(_stream(), timeout=12.0)
 
                 if out.exists() and out.stat().st_size > 1024:
                     return boundaries
@@ -439,6 +441,7 @@ def synthesize(
     text: str,
     out: Path,
     mock: bool = False,
+    engine: str = "edge",
     edge_voice: str | None = None,
     gender: str | None = None,
     username: str = "",
@@ -456,6 +459,10 @@ def synthesize(
     if mock:
         p, b = mock_tts(clean_text, out, rate=rate)
         return p, b, "Mock TTS"
+
+    if engine == "gtts":
+        p, b = google_tts_fallback(clean_text, out)
+        return p, b, "Google TTS" 
 
     if edge_voice:
         voice = edge_voice

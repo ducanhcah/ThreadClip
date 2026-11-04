@@ -1,0 +1,39 @@
+[
+  {
+    "id": "humor_laughter",
+    "regex": "(?:ha[ha]+|k[hk]+|h[eê]+|cười\\s+(?:ỉa|bò|chết|ngất|vãi|té\\s+ghế)|mắc\\s+cười|buồn\\s+cười)",
+    "category": "Humor",
+    "emotion": "Humor",
+    "event_type": "Comedy",
+    "base_score": 25,
+    "priority": 2
+  },
+  {
+    "id": "humor_slang",
+    "regex": "\\b(?:chúa\\s+hề|hề\\s+hước|tấu\\s+hài|bựa\\s+vcl|hài\\s+vcl|quỳ\\s+luôn|lạy\\s+luôn|nhịn\\s+cười|khôn\\s+như\\s+thế|ảo\\s+tưởng|hết\\s+cứu)\\b",
+    "category": "Humor",
+    "emotion": "Humor",
+    "event_type": "Comedy",
+    "base_score": 24,
+    "priority": 2
+  },
+  {
+    "id": "humor_emoji",
+    "regex": "[🤣😂😆🤪🤡]+",
+    "category": "Humor",
+    "emotion": "Humor",
+    "event_type": "Comedy",
+    "base_score": 20,
+    "priority": 3
+  },
+  {
+    "id": "humor_plot_punchline",
+    "regex": "(?:đúng\\s+là\\s+.+?\\s+hết\\s+cứu|não\\s+to\\s+vãi|khôn\\s+hết\\s+phần\\s+thiên\\s+hạ)",
+    "category": "Humor",
+    "emotion": "Humor",
+    "event_type": "Comedy",
+    "base_score": 25,
+    "priority": 2
+  }
+]
+

@@ -1,0 +1,48 @@
+[
+  {
+    "id": "sarcasm_tuong_nhung",
+    "regex": "(?:tưởng\\s+.+?\\s+(?:nhưng|ai\\s+ngờ|hoá\\s+ra|hóa\\s+ra|thì))",
+    "category": "PlotTwist",
+    "emotion": "PlotTwist",
+    "event_type": "PlotTwist",
+    "base_score": 25,
+    "priority": 1
+  },
+  {
+    "id": "sarcasm_dinh_cuoicung",
+    "regex": "(?:định\\s+.+?\\s+(?:cuối\\s+cùng|xong\\s+thì|ai\\s+dè))",
+    "category": "PlotTwist",
+    "emotion": "PlotTwist",
+    "event_type": "PlotTwist",
+    "base_score": 24,
+    "priority": 2
+  },
+  {
+    "id": "sarcasm_ai_ngo",
+    "regex": "\\b(?:ai\\s+ngờ|ai\\s+dè|không\\s+ngờ|hoá\\s+ra\\s+lại|hóa\\s+ra\\s+lại)\\b",
+    "category": "PlotTwist",
+    "emotion": "PlotTwist",
+    "event_type": "Transition",
+    "base_score": 24,
+    "priority": 1
+  },
+  {
+    "id": "sarcasm_ironic_praise",
+    "regex": "(?:đúng\\s+là\\s+[a-zA-Z0-9_À-ỹ\\s]{2,15}\\s+quá\\s+(?:giỏi|thông\\s+minh|tuyệt\\s+vời|đỉnh\\s+cao)|trải\\s+nghiệm\\s+tuyệt\\s+vời|thông\\s+minh\\s+đột\\s+xuất|đỉnh\\s+chóp\\s+luôn)",
+    "category": "Suspense",
+    "emotion": "Suspense",
+    "event_type": "Sarcasm",
+    "base_score": 22,
+    "priority": 2
+  },
+  {
+    "id": "sarcasm_chac_la",
+    "regex": "\\b(?:chắc\\s+là\\s+.+?\\s+lắm|khôn\\s+thế\\s+này\\s+thì|uy\\s+tín\\s+luôn\\s+á)\\b",
+    "category": "Suspense",
+    "emotion": "Suspense",
+    "event_type": "Sarcasm",
+    "base_score": 20,
+    "priority": 3
+  }
+]
+

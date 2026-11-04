@@ -51,7 +51,16 @@ def fmt_num(n: int | None) -> str:
     return str(n)
 
 
-def _avatar_html(post: Post, size: int) -> str:
+def _avatar_html(post: Post, size: int, mask_user: bool = False) -> str:
+    if mask_user:
+        icon_size = int(size * 0.56)
+        return (
+            f'<div class="av ph" style="width:{size}px;height:{size}px;'
+            f'display:flex;align-items:center;justify-content:center;background:#475569;">'
+            f'<svg viewBox="0 0 24 24" width="{icon_size}" height="{icon_size}" fill="#e2e8f0">'
+            f'<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>'
+            f'</svg></div>'
+        )
     if post.avatar_b64:
         return f'<img class="av" style="width:{size}px;height:{size}px" src="{post.avatar_b64}">'
     letter = html.escape((post.username[:1] or "?").upper())
@@ -95,8 +104,9 @@ def _image_html(post: Post) -> str:
     return f'<div class="post-img-box"><img class="post-img" src="{post.image_b64}"></div>'
 
 
-def _post_html(post: Post, icons: dict[str, str]) -> str:
+def _post_html(post: Post, icons: dict[str, str], mask_user: bool = False) -> str:
     sub = f"<span>{fmt_num(post.views)} lượt xem</span>" if post.views else ""
+    user_display = "Người dùng ẩn danh" if mask_user else html.escape(post.username)
     return f"""
 <div class="card" id="c">
   <div class="hdr">
@@ -104,8 +114,8 @@ def _post_html(post: Post, icons: dict[str, str]) -> str:
     <div class="c"><b>Thread</b>{sub}</div>
     <div class="r">{icons['bell']}{icons['dots']}</div>
   </div>
-  <div class="who">{_avatar_html(post, 110)}
-    <div class="name">{html.escape(post.username)}<span class="date">{post.date_str}</span></div>
+  <div class="who">{_avatar_html(post, 110, mask_user=mask_user)}
+    <div class="name">{user_display}<span class="date">{post.date_str}</span></div>
     <div class="tl">{icons['threads']}<span>Threads</span></div>
   </div>
   <div class="txt">{html.escape(post.text)}</div>
@@ -119,11 +129,12 @@ def _post_html(post: Post, icons: dict[str, str]) -> str:
 </div>"""
 
 
-def _comment_html(post: Post, icons: dict[str, str]) -> str:
+def _comment_html(post: Post, icons: dict[str, str], mask_user: bool = False) -> str:
+    user_display = "Người dùng ẩn danh" if mask_user else html.escape(post.username)
     return f"""
 <div class="card" id="c">
-  <div class="who">{_avatar_html(post, 96)}
-    <div class="name">{html.escape(post.username)}<span class="date">{post.date_str}</span></div>
+  <div class="who">{_avatar_html(post, 96, mask_user=mask_user)}
+    <div class="name">{user_display}<span class="date">{post.date_str}</span></div>
   </div>
   <div class="txt">{html.escape(post.text)}</div>
   {_image_html(post)}
@@ -178,7 +189,8 @@ def _calc_font_size(text: str) -> int:
 
 def render_cards(main: Post, comments: list[Post], out_dir: Path,
                  dark: bool = False, render_outro: bool = True,
-                 channel_name: str = "") -> tuple[Path, list[Path], Path | None]:
+                 channel_name: str = "",
+                 mask_user: bool = False) -> tuple[Path, list[Path], Path | None]:
     """Chụp thẻ bài viết, từng thẻ bình luận và thẻ outro ra PNG trong suốt ở viền bo góc."""
     from playwright.sync_api import sync_playwright
 
@@ -203,10 +215,10 @@ def render_cards(main: Post, comments: list[Post], out_dir: Path,
                 page.wait_for_timeout(150)
                 page.locator("#c").screenshot(path=str(path), omit_background=True)
 
-            shoot(_post_html(main, icons), main_png, _calc_font_size(main.text))
+            shoot(_post_html(main, icons, mask_user=mask_user), main_png, _calc_font_size(main.text))
             for i, c in enumerate(comments, 1):
                 p = out_dir / f"comment_{i}.png"
-                shoot(_comment_html(c, icons), p, _calc_font_size(c.text))
+                shoot(_comment_html(c, icons, mask_user=mask_user), p, _calc_font_size(c.text))
                 comment_pngs.append(p)
 
             if render_outro:

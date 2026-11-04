@@ -1,0 +1,40 @@
+{
+  "emotions": {
+    "Humor": [
+      "haha", "hahaha", "kkk", "cười", "mắc cười", "buồn cười", "cười ỉa",
+      "cười bò", "cười chết", "cười té ghế", "hề", "hề hước", "hài", "hài hước",
+      "chúa hề", "bựa", "quỳ", "lạy", "nhịn cười", "troll", "vui vãi",
+      "não to", "não", "khôn thế", "ảo tưởng", "tỉnh lại đi", "ai mượn", "ai bảo",
+      "tào lao", "ngáo", "dở hơi", "xàm", "nhảm", "hết cứu", "vl", "vcl"
+    ],
+    "Surprise": [
+      "bất ngờ", "sốc", "té ngửa", "xỉu", "ngỡ ngàng", "sự thật", "hóa ra",
+      "hoá ra", "thật ra", "ai ngờ", "không ngờ", "trời ơi", "kinh thật",
+      "rùng mình", "biến căng", "drama", "ảo thật", "không thể tin", "kinh khủng",
+      "hả", "ủa", "gì cơ", "vãi chưởng"
+    ],
+    "Warning": [
+      "toang", "thôi xong", "tiêu rồi", "chết dở", "hỏng rồi", "nguy hiểm",
+      "độc hại", "ung thư", "dị ứng", "nhiễm độc", "cẩn thận", "coi chừng",
+      "đừng dại", "né ngay", "né gấp", "chạy ngay", "sợ quá", "hãi", "báo công an",
+      "lừa đảo", "gian thương", "hàng giả"
+    ],
+    "Failure": [
+      "tiếc tiền", "tiếc của", "tiếc", "mất tiền", "uổng", "mất trắng",
+      "đen đủi", "xui xẻo", "mất oan", "buồn", "buồn quá", "khóc", "huhu",
+      "rơi nước mắt", "xót xa", "đau lòng", "tội nghiệp", "đáng thương",
+      "cạn lời", "bó tay", "bất lực", "chết máy", "sập nguồn", "hỏng bét", "toang hẳn"
+    ],
+    "Suspense": [
+      "thật không", "thật á", "thật hả", "có chắc", "chắc chưa", "nghi ngờ",
+      "nghi lắm", "điêu", "xạo", "chém gió", "bịp", "lươn", "lấn cấn",
+      "cấn cấn", "sượng trân", "chim mồi", "seeding", "liếc", "lườm",
+      "im lặng", "nín thở"
+    ],
+    "Excitement": [
+      "đỉnh", "quá đã", "xuất sắc", "siêu phẩm", "ngon", "xịn", "tuyệt cú mèo",
+      "cháy quá", "đẳng cấp", "mê chữ ê kéo dài", "10 điểm", "uy tín"
+    ]
+  }
+}
+

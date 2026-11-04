@@ -5,6 +5,8 @@ import os
 import random
 import shutil
 import subprocess
+from sfx_engine.audio_mixer import AudioMixer
+from sfx_engine.models import SoundEvent
 from pathlib import Path
 
 FPS = 30
@@ -121,21 +123,42 @@ def duration(path: Path) -> float:
 
 
 def make_scene(frame_png: Path, voice: Path, out: Path, sfx: Path | None = None,
-               sfx_offset: float = 0.0, sfx_volume: float = 0.40):
-    """Một cảnh = ảnh tĩnh + giọng đọc (+ sfx tùy chọn với vị trí thời gian và âm lượng chuẩn).
+               sfx_offset: float = 0.0, sfx_volume: float = 0.40,
+               sound_events: list[SoundEvent] | None = None):
+    """Một cảnh = ảnh tĩnh + giọng đọc (+ nhiều sound_events hoặc sfx đơn lẻ kế thừa).
 
-    Args:
-        frame_png: Ảnh PNG khung hình cảnh (1080×1920).
-        voice:     File mp3 giọng đọc chính.
-        out:       Đường dẫn file .mp4 xuất ra.
-        sfx:       File mp3 âm thanh meme phát cùng giọng đọc.
-        sfx_offset: Mốc giây bắt đầu kích hoạt SFX (canh theo nhịp câu/từ khóa).
-        sfx_volume: Âm lượng SFX (0.0 - 1.0, mặc định 0.40 để không đè giọng đọc).
+    Hỗ trợ cả danh sách SoundEvent đa điểm (Multi-SFX) lẫn tham số sfx đơn lẻ truyền thống.
     """
+    tmp = out.with_name(out.stem + ".tmp.mp4")
+
+    # Ưu tiên sử dụng Multi-SFX AudioMixer nếu có sound_events
+    if sound_events is not None:
+        mixer = AudioMixer(default_pad=PAD)
+        mixed_audio = out.with_name(out.stem + ".mixed.m4a")
+        try:
+            mixed_audio, dur = mixer.mix_voice_and_sfx(voice, sound_events, mixed_audio, pad=PAD)
+            _run([
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-framerate", str(FPS), "-i", str(frame_png),
+                "-i", str(mixed_audio),
+                "-filter_complex", f"[0:v]format=yuv420p,loop=-1:1,trim=duration={dur:.3f}[v]",
+                "-map", "[v]", "-map", "1:a",
+                "-t", f"{dur:.3f}",
+                "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-r", str(FPS),
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-ac", "2",
+                "-movflags", "+faststart", str(tmp),
+            ])
+            tmp.replace(out)
+            return
+        finally:
+            if mixed_audio.exists():
+                mixed_audio.unlink(missing_ok=True)
+
+    # Nhánh backward-compatible cho sfx đơn lẻ
     voice_dur = duration(voice)
     sfx_dur = duration(sfx) if (sfx and sfx.exists()) else 0.0
     dur = max(voice_dur + PAD, sfx_offset + sfx_dur) if sfx_dur > 0 else (voice_dur + PAD)
-    tmp = out.with_name(out.stem + ".tmp.mp4")
 
     if sfx and sfx.exists():
         delay_ms = int(max(0.0, sfx_offset) * 1000)
@@ -294,7 +317,8 @@ def make_scene_with_video_bg(frame_png: Path, voice: Path, bg_video: Path,
                               out: Path, sfx: Path | None = None,
                               bg_offset: float = 0.0,
                               sfx_offset: float = 0.0,
-                              sfx_volume: float = 0.40):
+                              sfx_volume: float = 0.40,
+                              sound_events: list[SoundEvent] | None = None):
     """Cảnh có video nền chuyển động thay vì ảnh tĩnh.
 
     Tự động scale/crop bg_video về 1080×1920, loop để đủ độ dài, overlay frame.
@@ -312,10 +336,44 @@ def make_scene_with_video_bg(frame_png: Path, voice: Path, bg_video: Path,
         sfx_offset: Mốc giây kích hoạt SFX.
         sfx_volume: Âm lượng SFX (0.0 - 1.0, mặc định 0.40).
     """
+    tmp = out.with_name(out.stem + ".tmp.mp4")
+    ss_args = ["-ss", f"{bg_offset:.2f}"] if bg_offset > 0 else []
+
+    if sound_events is not None:
+        mixer = AudioMixer(default_pad=PAD)
+        mixed_audio = out.with_name(out.stem + ".mixed.m4a")
+        try:
+            mixed_audio, dur = mixer.mix_voice_and_sfx(voice, sound_events, mixed_audio, pad=PAD)
+            vf = (
+                f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,"
+                f"crop={W}:{H},setsar=1[bg];"
+                f"[1:v]scale={W}:{H}[frame];"
+                f"[bg][frame]overlay=0:0,format=yuv420p,"
+                f"trim=duration={dur:.3f}[v]"
+            )
+            _run([
+                "ffmpeg", "-y", "-loglevel", "error",
+                *ss_args,
+                "-stream_loop", "-1", "-i", str(bg_video),
+                "-i", str(frame_png),
+                "-i", str(mixed_audio),
+                "-filter_complex", vf,
+                "-map", "[v]", "-map", "2:a",
+                "-t", f"{dur:.3f}",
+                "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-r", str(FPS),
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-ac", "2",
+                "-movflags", "+faststart", str(tmp),
+            ])
+            tmp.replace(out)
+            return
+        finally:
+            if mixed_audio.exists():
+                mixed_audio.unlink(missing_ok=True)
+
     voice_dur = duration(voice)
     sfx_dur = duration(sfx) if (sfx and sfx.exists()) else 0.0
     dur = max(voice_dur + PAD, sfx_offset + sfx_dur) if sfx_dur > 0 else (voice_dur + PAD)
-    tmp = out.with_name(out.stem + ".tmp.mp4")
 
     # Video filter: scale bg → crop center → overlay frame PNG lên trên (không fade=in để tránh nháy đen)
     vf = (

@@ -17,12 +17,11 @@
     </td>
   </tr>
 </table>
-
 ---
 
 ## ⚡ Tải về sử dụng ngay (Dành cho Windows)
 
-[![Tải về bản mới nhất](https://img.shields.io/badge/Tải_về_ngay-ThreadClip_Windows-blue?style=for-the-badge&logo=windows)](https://github.com/ducanhcah/threads2video_ducanhcah/releases/latest)
+[![Tải về bản mới nhất](https://img.shields.io/badge/Tải_về_ngay-ThreadClip_Windows-blue?style=for-the-badge&logo=windows)](https://github.com/ducanhcah/ThreadClip/releases/latest)
 
 > 💡 **0 Bước Cài Đặt:** Bạn chỉ cần tải file `.zip` từ mục Releases về, giải nén và bấm chạy. Không cần cài Python, không cần cài FFmpeg, không cần cấu hình PATH!
 

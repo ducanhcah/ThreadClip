@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "min_score": 65,
+  "max_sfx_per_sentence": 3,
+  "max_sfx_per_comment": 6,
+  "min_gap_seconds": 0.6,
+  "default_volume": 0.35,
+  "max_volume": 0.5,
+  "enable_cooldown": true,
+  "avoid_duplicate_sfx": true,
+  "allow_overlap": false,
+  "enable_context_analysis": true,
+  "enable_negative_detection": true
+}
+

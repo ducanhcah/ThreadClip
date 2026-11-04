@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 
 import cards
 from sound_designer import SoundDesigner, SoundCue, format_cue_report
+from sfx_engine.models import SoundEvent
 import title as titlemod
 import tts
 import video
@@ -61,6 +62,8 @@ def main():
                          "Mặc định: đọc từ EDGE_TTS_VOICE trong .env")
     ap.add_argument("--rate", "--tts-rate", default="+0%",
                     help="Tốc độ giọng đọc AI (vd: 1.0x, 1.1x, 1.15x, 1.2x hoặc +15%%, -10%%, mặc định: 1.0x)")
+    ap.add_argument("--tts-engine", choices=["edge", "gtts"], default="edge",
+                    help="Công nghệ giọng đọc (edge: Microsoft Edge Neural tự nhiên, gtts: Google TTS siêu tốc chống nghẽn)")
     ap.add_argument("--mock-tts", action="store_true", help="Giọng giả để test, không gọi TTS")
 
     # ── Video nền ─────────────────────────────────────────────────────────────
@@ -91,6 +94,8 @@ def main():
                     ],
                     default="above-card-left",
                     help="Vị trí hiển thị bản quyền (mặc định: above-card-left, ngay phía trên thẻ bài viết)")
+    ap.add_argument("--mask-user", "--hide-user", action="store_true",
+                    help="Ẩn danh: Che tên và ảnh đại diện người dùng trong video")
     ap.add_argument("--no-outro", action="store_true",
                     help="Tắt lời kêu gọi Follow, Thả Tim và Bình luận ở cuối video")
 
@@ -156,6 +161,7 @@ def main():
         dark=args.dark,
         render_outro=not args.no_outro,
         channel_name=args.watermark,
+        mask_user=args.mask_user,
     )
     bg = cards.make_background(work / "bg.png", Path(args.bg) if args.bg else None, dark=args.dark)
 
@@ -204,7 +210,7 @@ def main():
         for i, comment in enumerate(thread.comments)
     ]
     designer = SoundDesigner(sfx_dir) if sfx_dir else None
-    sound_cues: list[SoundCue] = []
+    all_sound_events: list[SoundEvent] = []
     scenes: list[Path] = []
 
     for i, (text, cpng, username, explicit_gender) in enumerate(segments):
@@ -216,6 +222,7 @@ def main():
             text,
             voice_path,
             mock=args.mock_tts,
+            engine=args.tts_engine,
             edge_voice=args.edge_voice,
             gender=explicit_gender,
             username=username or "",
@@ -224,15 +231,18 @@ def main():
         )
         voice_dur = video.duration(voice_path)
 
-        cue: SoundCue | None = None
-        if designer:
-            cue = designer.plan_sound_cue(
+        user_scale = args.sfx_volume / 0.35
+        scene_events: list[SoundEvent] = []
+        if designer and not args.no_sfx:
+            scene_events = designer.plan_sound_events(
+                scene_id=i,
                 text=text,
                 is_hook=(i == 0),
                 sentence_boundaries=boundaries,
                 total_duration=voice_dur,
+                user_scale=user_scale,
             )
-            sound_cues.append(cue)
+            all_sound_events.extend(scene_events)
 
         frame = work / f"frame_{i}.png"
         cards.compose_frame(
@@ -246,20 +256,12 @@ def main():
         )
         scene = work / f"scene_{i}.mp4"
 
-        sfx_path = cue.sfx_file if (cue and cue.sfx_file) else None
-        sfx_offset = cue.offset_seconds if cue else 0.0
-        base_vol = cue.volume if cue else 0.35
-        # Tỉ lệ điều chỉnh âm lượng SFX theo người dùng (mặc định 0.35)
-        user_scale = args.sfx_volume / 0.35
-        sfx_vol = round(max(0.05, min(1.0, base_vol * user_scale)), 2)
-
         if bg_video:
             video.make_scene_with_video_bg(
                 frame, voice_path, bg_video, scene,
-                sfx=sfx_path, bg_offset=bg_cursor,
-                sfx_offset=sfx_offset, sfx_volume=sfx_vol,
+                bg_offset=bg_cursor,
+                sound_events=scene_events,
             )
-            # Dịch chuyển vị trí video nền để cảnh tiếp theo chạy liên tục
             try:
                 scene_dur = video.duration(scene)
                 bg_cursor += scene_dur
@@ -268,11 +270,12 @@ def main():
         else:
             video.make_scene(
                 frame, voice_path, scene,
-                sfx=sfx_path, sfx_offset=sfx_offset, sfx_volume=sfx_vol,
+                sound_events=scene_events,
             )
 
-        if cue and cue.sfx_file:
-            print(f"      Cảnh {i + 1}/{len(segments)} hoàn thành | 🎙️ {voice_info} | 🎵 SFX: {cue.sfx_file.stem} (t={cue.offset_seconds:.2f}s, vol={int(sfx_vol*100)}%, cảm xúc={cue.emotion}, cơ hội={cue.opportunity_type})")
+        if scene_events:
+            sfx_names = ", ".join(e.sfx_path.stem for e in scene_events if e.sfx_path)
+            print(f"      Cảnh {i + 1}/{len(segments)} hoàn thành | 🎙️ {voice_info} | 🎵 Multi-SFX ({len(scene_events)}): [{sfx_names}]")
         else:
             print(f"      Cảnh {i + 1}/{len(segments)} hoàn thành | 🎙️ {voice_info}")
         scenes.append(scene)
@@ -288,6 +291,7 @@ def main():
             outro_text,
             voice_outro,
             mock=args.mock_tts,
+            engine=args.tts_engine,
             edge_voice=args.edge_voice,
             gender=thread.main.gender,
             username=thread.main.username or "",
@@ -319,16 +323,36 @@ def main():
         user_scale = args.sfx_volume / 0.35
         outro_sfx_vol = round(max(0.05, min(1.0, 0.40 * user_scale)), 2)
 
+        outro_events: list[SoundEvent] = []
+        if outro_sfx and not args.no_sfx:
+            outro_events.append(
+                SoundEvent(
+                    event_id=f"evt_outro_1",
+                    scene_id=len(segments),
+                    anchor_text="Outro Call-to-Action",
+                    char_start=0,
+                    char_end=len(outro_text),
+                    event_type="Hook",
+                    emotion="Excitement",
+                    sfx_file=outro_sfx,
+                    score=90.0,
+                    priority=1,
+                    start_time=0.2,
+                    end_time=1.0,
+                    volume=outro_sfx_vol,
+                    reason="Âm thanh tươi vui mở màn phần kêu gọi tương tác",
+                )
+            )
+            all_sound_events.extend(outro_events)
+
         if bg_video:
             video.make_scene_with_video_bg(
                 frame_outro,
                 voice_outro,
                 bg_video,
                 scene_outro,
-                sfx=outro_sfx,
                 bg_offset=bg_cursor,
-                sfx_offset=0.2,
-                sfx_volume=outro_sfx_vol,
+                sound_events=outro_events,
             )
             try:
                 bg_cursor += video.duration(scene_outro)
@@ -339,9 +363,7 @@ def main():
                 frame_outro,
                 voice_outro,
                 scene_outro,
-                sfx=outro_sfx,
-                sfx_offset=0.2,
-                sfx_volume=outro_sfx_vol,
+                sound_events=outro_events,
             )
 
         scenes.append(scene_outro)
@@ -372,11 +394,11 @@ def main():
     title_text = titlemod.make_title(thread)
     (out / "title.txt").write_text(title_text, encoding="utf-8")
 
-    if sound_cues:
+    if all_sound_events:
         import json
-        (out / "sfx_report.md").write_text(format_cue_report(sound_cues), encoding="utf-8")
+        (out / "sfx_report.md").write_text(format_cue_report(all_sound_events), encoding="utf-8")
         (out / "sfx_cues.json").write_text(
-            json.dumps([c.to_dict() for c in sound_cues], ensure_ascii=False, indent=2),
+            json.dumps([c.to_dict() for c in all_sound_events], ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
 

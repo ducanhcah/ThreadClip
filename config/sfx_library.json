@@ -1,0 +1,49 @@
+{
+  "categories": {
+    "Hook": [
+      { "file": "ting.mp3", "volume": 0.45, "emotion": "Excitement", "tags": ["bell", "ding", "start"] },
+      { "file": "whoosh.mp3", "volume": 0.35, "emotion": "Curiosity", "tags": ["fast", "transition"] }
+    ],
+    "Humor": [
+      { "file": "bonk.mp3", "volume": 0.40, "emotion": "Humor", "tags": ["punchline", "cartoon"] },
+      { "file": "fart.mp3", "volume": 0.36, "emotion": "Humor", "tags": ["funny", "bua"] },
+      { "file": "bruh.mp3", "volume": 0.40, "emotion": "Humor", "tags": ["disbelief", "deadpan"] },
+      { "file": "quack.mp3", "volume": 0.36, "emotion": "Humor", "tags": ["silly", "ngao"] },
+      { "file": "emotional-damage.mp3", "volume": 0.42, "emotion": "Humor", "tags": ["insult", "damage"] },
+      { "file": "what-the-hell.mp3", "volume": 0.38, "emotion": "Humor", "tags": ["confusion"] }
+    ],
+    "Surprise": [
+      { "file": "huh.mp3", "volume": 0.42, "emotion": "Surprise", "tags": ["confused", "curiosity"] },
+      { "file": "wow.mp3", "volume": 0.40, "emotion": "Surprise", "tags": ["astonished"] },
+      { "file": "fbi-open-up.mp3", "volume": 0.40, "emotion": "Surprise", "tags": ["shock", "busted"] },
+      { "file": "damn.mp3", "volume": 0.38, "emotion": "Surprise", "tags": ["impressed", "shock"] }
+    ],
+    "Failure": [
+      { "file": "metal-pipe.mp3", "volume": 0.38, "emotion": "Failure", "tags": ["crash", "drop", "toang"] },
+      { "file": "womp-womp.mp3", "volume": 0.40, "emotion": "Failure", "tags": ["loser", "fail"] },
+      { "file": "sad-violin.mp3", "volume": 0.38, "emotion": "Failure", "tags": ["sad", "tiếc"] },
+      { "file": "oof.mp3", "volume": 0.38, "emotion": "Failure", "tags": ["hurt", "damage"] },
+      { "file": "hell-nah.mp3", "volume": 0.38, "emotion": "Failure", "tags": ["rejection"] }
+    ],
+    "Suspense": [
+      { "file": "side-eye.mp3", "volume": 0.42, "emotion": "Suspense", "tags": ["doubt", "bombastic"] },
+      { "file": "vine-boom.mp3", "volume": 0.32, "emotion": "Suspense", "tags": ["impact", "dramatic"] },
+      { "file": "cricket.mp3", "volume": 0.35, "emotion": "Suspense", "tags": ["awkward", "silence"] }
+    ],
+    "PlotTwist": [
+      { "file": "side-eye.mp3", "volume": 0.42, "emotion": "PlotTwist", "tags": ["doubt", "liếc"] },
+      { "file": "vine-boom.mp3", "volume": 0.34, "emotion": "PlotTwist", "tags": ["twist", "impact"] },
+      { "file": "slap.mp3", "volume": 0.38, "emotion": "PlotTwist", "tags": ["slap", "realization"] }
+    ],
+    "Emphasis": [
+      { "file": "nice.mp3", "volume": 0.38, "emotion": "Excitement", "tags": ["good", "approve"] },
+      { "file": "airhorn.mp3", "volume": 0.32, "emotion": "Excitement", "tags": ["hype", "horn"] },
+      { "file": "pop.mp3", "volume": 0.30, "emotion": "Neutral", "tags": ["soft", "tip"] }
+    ],
+    "Neutral": [
+      { "file": "pop.mp3", "volume": 0.28, "emotion": "Neutral", "tags": ["subtle"] },
+      { "file": "ting.mp3", "volume": 0.30, "emotion": "Neutral", "tags": ["soft"] }
+    ]
+  }
+}
+

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "neg_khong_buon_cuoi",
+    "regex": "(?:không\\s+(?:buồn\\s+cười|thấy\\s+hài|vui)\\s*(?:chút\\s+nào|gì|đâu)?|chẳng\\s+(?:buồn\\s+cười|thấy\\s+vui|có\\s+gì\\s+hài))",
+    "suppress_categories": ["Humor", "Comedy"],
+    "penalty": 40,
+    "reason": "Phát hiện phủ định hài hước ('không buồn cười chút nào')"
+  },
+  {
+    "id": "neg_dung_co_cuoi",
+    "regex": "(?:đừng\\s+(?:có\\s+)?cười|cấm\\s+cười|đừng\\s+đùa|bớt\\s+đùa|không\\s+đùa\\s+được\\s+đâu)",
+    "suppress_categories": ["Humor", "Comedy"],
+    "penalty": 40,
+    "reason": "Phát hiện lời ngăn cản / nghiêm túc ('đừng có cười')"
+  },
+  {
+    "id": "neg_khong_phai_het_cuu",
+    "regex": "(?:không\\s+phải\\s+(?:là\\s+)?hết\\s+cứu|vẫn\\s+còn\\s+cứu\\s+được|chưa\\s+hẳn\\s+là\\s+hết\\s+cứu)",
+    "suppress_categories": ["Humor", "Failure", "Comedy"],
+    "penalty": 40,
+    "reason": "Phát hiện phủ định cụm từ 'hết cứu'"
+  },
+  {
+    "id": "neg_tuong_hai_nhung_chang_vui",
+    "regex": "(?:tưởng\\s+hài\\s+nhưng\\s+(?:chẳng|không)\\s+vui|tưởng\\s+vui\\s+mà\\s+không\\s+vui)",
+    "suppress_categories": ["Humor", "Comedy"],
+    "penalty": 45,
+    "reason": "Phát hiện mâu thuẫn tưởng hài nhưng không vui"
+  },
+  {
+    "id": "neg_general_negation",
+    "regex": "\\b(?:không\\s+hề|chưa\\s+hề|chẳng\\s+hề|không\\s+phải)\\s+(?:hài|vui|sốc|bất\\s+ngờ|toang|lừa)\\b",
+    "suppress_categories": ["Humor", "Surprise", "Warning", "Failure"],
+    "penalty": 35,
+    "reason": "Phát hiện phủ định cảm xúc trực tiếp"
+  }
+]
+

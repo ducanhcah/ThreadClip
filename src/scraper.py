@@ -172,36 +172,55 @@ def _walk(node, out: dict):
             _walk(v, out)
 
 
-# ─── BỘ LỌC QUẢNG CÁO, SPAM & LINK LIÊN KẾT NGOÀI ─────────────────────────────
+# ─── BỘ LỌC QUẢNG CÁO, SPAM, AFFILIATE & LÁCH CHỮ NÉ APP ─────────────────────
 _EXTERNAL_LINK_REGEX = re.compile(
     r"(?:https?://\S+)|"
     r"(?:www\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-.\/]+)|"
     r"\b(?:bit\.ly|tinyurl\.com|t\.me|zalo\.me|shopee\.vn|shope\.ee|lazada\.vn|"
-    r"s\.lazada\.vn|linktr\.ee|bio\.link|beacons\.ai|taplink\.cc)\b/\S*|"
+    r"s\.shopee\.vn|s\.lazada\.vn|linktr\.ee|bio\.link|beacons\.ai|taplink\.cc)\b/\S*|"
     r"\b[a-zA-Z0-9-]+\.(?:com|vn|ly|ee|me|link|ai|io|top|xyz|site)\b/\S+",
     re.IGNORECASE,
 )
 
 _SPAM_AD_PATTERNS = [
-    # 1. Kéo link bio, link trang cá nhân
-    re.compile(r"\b(?:link\s+(?:ở|trên|tại|trong)\s+bio|check\s+bio|xem\s+bio|link\s+bio|ở\s+bio\s+ạ|vào\s+bio)\b", re.I),
-    re.compile(r"\b(?:link\s+mua(?:\s+hàng)?|mua\s+ở\s+link|bấm\s+vào\s+link|nhấp\s+link|link\s+dưới\s+cmt)\b", re.I),
+    # 1. Các biến thể lách chữ có dấu phẩy/chấm/gạch nối/khoảng trắng né quét từ (l,i,n,k / a,p,p / s,h,o,p...)
+    re.compile(r"\b(?:l[\W_]*i[\W_]*n[\W_]*k)\b", re.I),
+    re.compile(r"\b(?:s[\W_]*h[\W_]*o[\W_]*p[\W_]*e[\W_]*e)\b", re.I),
+    re.compile(r"\b(?:l[\W_]*a[\W_]*z[\W_]*a[\W_]*d[\W_]*a)\b", re.I),
+    re.compile(r"\b(?:z[\W_]*a[\W_]*l[\W_]*o)\b", re.I),
+    re.compile(r"\b(?:t[\W_]*e[\W_]*l[\W_]*e)\b", re.I),
 
-    # 2. Zalo / Telegram / Kéo nhóm kín
-    re.compile(r"\b(?:vào\s+nhóm\s+zalo|kết\s+bạn\s+zalo|liên\s+hệ\s+zalo|ib\s+zalo|nhóm\s+zalo|zalo\s*:?\s*0\d{8,10})\b", re.I),
-    re.compile(r"\b(?:link\s+tele(?:gram)?|nhóm\s+tele|kênh\s+tele|vào\s+tele)\b", re.I),
+    # 2. Sàn TMĐT bằng tiếng lóng (sàn cam, sàn s, sàn xanh, sàn l, sàn đỏ, sàn đen, sàn tóp...)
+    re.compile(r"\b(?:sàn\s*(?:cam|s\b|xanh|l\b|đỏ|đen|d\b|t[oó]p|tmđt|thương\s*mại))\b", re.I),
+    re.compile(r"\b(?:t[oó]p\s*t[oó]p\s*shop|tiktok\s*shop)\b", re.I),
+    re.compile(r"\b(?:shopee|lazada|sendo|tiki)\b", re.I),
 
-    # 3. Tuyển dụng CTV, lừa đảo việc nhẹ lương cao, kéo vốn
-    re.compile(r"\b(?:tuyển\s+ctv|tuyển\s+dụng\s+ctv|việc\s+nhẹ\s+lương\s+cao|kiếm\s+tiền\s+online)\b", re.I),
-    re.compile(r"\b(?:hoa\s+hồng\s+cao|vốn\s+ít|lãi\s+ngày|kéo\s+vốn|vào\s+bờ|thu\s+nhập\s+thụ\s+động)\b", re.I),
-    re.compile(r"\b(?:cho\s+vay|hỗ\s+trợ\s+nợ\s+xấu|giải\s+ngân\s+nhanh|vay\s+tiền\s+nóng)\b", re.I),
+    # 3. Ứng dụng hoàn tiền, cashback, săn sale, mã giảm giá, voucher né app
+    re.compile(r"\b(?:monback|cashback|hoàn\s*tiền|tích\s*xu|hoàn\s*xu)\b", re.I),
+    re.compile(r"(?:dán|gửi|lấy|nhấp|bấm|vào|ấn)\s*(?:l[\W_]*i[\W_]*n[\W_]*k|link)", re.I),
+    re.compile(r"(?:đơn\s*hàng\s*hoàn|hoàn\s*(?:vài|tiền|xu)\s*(?:chục|k|🐟|cá))", re.I),
+    re.compile(r"\b(?:mã\s*(?:giảm\s*giá|freeship|voucher|mời|giới\s*thiệu)|áp\s*mã|săn\s*sale|săn\s*mã)\b", re.I),
+    re.compile(r"\b(?:hoa\s*hồng\s*cao|tiếp\s*thị\s*liên\s*kết|affiliate)\b", re.I),
 
-    # 4. Tài xỉu, cá độ, cờ bạc mạng
-    re.compile(r"\b(?:tài\s+xỉu|game\s+bài|nạp\s+rút\s+1\s*:\s*1|nhận\s+code\s+trải\s+nghiệm|nhà\s+cái|kèo\s+bóng)\b", re.I),
+    # 4. Kéo link bio, link trang cá nhân
+    re.compile(r"(?:link\s+(?:ở|trên|tại|trong)\s+bio|check\s+bio|xem\s+bio|link\s+bio|ở\s+bio\s+ạ|vào\s+bio)", re.I),
+    re.compile(r"(?:link\s+mua(?:\s+hàng)?|mua\s+ở\s+link|bấm\s+vào\s+link|nhấp\s+link|link\s+dưới\s+cmt)", re.I),
 
-    # 5. Mời chào mua bán, spam shop
-    re.compile(r"\b(?:inbox\s+shop|ib\s+shop|ghé\s+shop|bán\s+acc|bán\s+nick|mua\s+bán\s+acc)\b", re.I),
-    re.compile(r"\b(?:clip\s+full\s+ở|xem\s+full\s+clip|ảnh\s+full\s+ở|full\s+video\s+ở)\b", re.I),
+    # 5. Zalo / Telegram / Kéo nhóm kín
+    re.compile(r"(?:vào\s+nhóm\s+zalo|kết\s+bạn\s+zalo|liên\s+hệ\s+zalo|ib\s+zalo|nhóm\s+zalo|zalo\s*:?\s*0\d{8,10})", re.I),
+    re.compile(r"(?:link\s+tele(?:gram)?|nhóm\s+tele|kênh\s+tele|vào\s+tele)", re.I),
+
+    # 6. Tuyển dụng CTV, lừa đảo việc nhẹ lương cao, kéo vốn
+    re.compile(r"(?:tuyển\s+ctv|tuyển\s+dụng\s+ctv|việc\s+nhẹ\s+lương\s+cao|kiếm\s+tiền\s+online)", re.I),
+    re.compile(r"(?:hoa\s+hồng|vốn\s+ít|lãi\s+ngày|kéo\s+vốn|vào\s+bờ|thu\s+nhập\s+thụ\s+động)", re.I),
+    re.compile(r"(?:cho\s+vay|hỗ\s+trợ\s+nợ\s+xấu|giải\s+ngân\s+nhanh|vay\s+tiền\s+nóng)", re.I),
+
+    # 7. Tài xỉu, cá độ, cờ bạc mạng
+    re.compile(r"(?:tài\s+xỉu|game\s+bài|nạp\s+rút\s+1\s*:\s*1|nhận\s+code\s+trải\s+nghiệm|nhà\s+cái|kèo\s+bóng)", re.I),
+
+    # 8. Mời chào mua bán, spam shop
+    re.compile(r"(?:inbox\s+shop|ib\s+shop|ghé\s+shop|bán\s+acc|bán\s+nick|mua\s+bán\s+acc)", re.I),
+    re.compile(r"(?:clip\s+full\s+ở|xem\s+full\s+clip|ảnh\s+full\s+ở|full\s+video\s+ở)", re.I),
 ]
 
 

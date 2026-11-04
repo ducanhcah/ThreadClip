@@ -9,6 +9,7 @@ Tuân thủ nghiêm ngặt 6 nguyên tắc cốt lõi:
   6. NATURAL SOUND DESIGN: Giọng nói là số 1, không che khuất, mật độ cân bằng, chống lặp lại.
 """
 from __future__ import annotations
+from sfx_engine.models import SoundEvent
 
 import json
 import random
@@ -172,8 +173,33 @@ class SoundDesigner:
     """Bộ não phân tích ngữ cảnh lời thoại và tự động sắp đặt SFX theo chuẩn TikTok / Reels."""
 
     def __init__(self, sfx_dir: Path):
+        from sfx_engine.engine import SFXEngine
         self.sfx_dir = sfx_dir
         self.recent_sfx: list[str] = []
+        self.engine = SFXEngine(sfx_dir=sfx_dir)
+
+    def plan_sound_events(
+        self,
+        scene_id: int,
+        text: str,
+        is_hook: bool = False,
+        sentence_boundaries: list[dict[str, Any]] | None = None,
+        total_duration: float = 3.0,
+        user_scale: float = 1.0,
+    ) -> list[SoundEvent]:
+        """Tạo danh sách nhiều SoundEvent (Multi-SFX) trong cùng 1 phân cảnh (Scene).
+
+        Tích hợp toàn diện Master SFXEngine: Rule-based Pattern Matching, Negation Detection,
+        Context Scoring, Timestamp Alignment và Cooldown Management.
+        """
+        return self.engine.process_scene(
+            scene_id=scene_id,
+            text=text,
+            is_hook=is_hook,
+            sentence_boundaries=sentence_boundaries,
+            total_duration=total_duration,
+            user_scale=user_scale,
+        )
 
     def _match_keyword(self, kw: str, text: str) -> bool:
         if kw in ("?", "!", "...", "..") or any(ord(c) > 0x1F000 for c in kw):
@@ -272,6 +298,21 @@ class SoundDesigner:
         norm_text = normalize_vietnamese_text(text)
         emotion, matched_kw, _ = self.detect_emotion(norm_text)
 
+        # Mở đầu video (Hook): Luôn phát hiệu ứng ting.mp3 tạo điểm nhấn thu hút
+        if is_hook:
+            ting_f = self.sfx_dir / "ting.mp3"
+            if ting_f.exists():
+                return SoundCue(
+                    sfx_file=ting_f,
+                    offset_seconds=0.15,
+                    duration_seconds=0.8,
+                    emotion="Excitement",
+                    opportunity_type="Hook",
+                    keyword_or_phrase="Mở đầu video",
+                    volume=0.45,
+                    explanation="Âm thanh ting mở màn video TikTok tạo điểm nhấn thu hút ngay lập tức.",
+                )
+
         # 3. Xác định cơ hội chèn âm thanh
         opp_type, focus_phrase = self.identify_opportunity(is_hook, norm_text, emotion, matched_kw)
 
@@ -344,19 +385,27 @@ class SoundDesigner:
         )
 
 
-def format_cue_report(cues: list[SoundCue]) -> str:
-    """Tạo bảng báo cáo chuyên nghiệp theo định dạng Markdown."""
+def format_cue_report(cues: list[SoundCue | SoundEvent]) -> str:
+    """Tạo bảng báo cáo chuyên nghiệp theo định dạng Markdown hỗ trợ cả SoundEvent và SoundCue."""
     lines = [
-        "| STT | Thời điểm (Timestamp) | Từ khóa / Điểm nhấn | Cảm xúc | Cơ hội SFX | Tên Sound Effect | Âm lượng & Hướng dẫn |",
-        "|---|---|---|---|---|---|---|",
+        "| STT | Phân cảnh | Thời điểm (Timestamp) | Từ khóa / Điểm nhấn | Cảm xúc | Cơ hội SFX | Tên Sound Effect | Điểm / Âm lượng | Hướng dẫn & Lý do |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
-    for i, c in enumerate(cues):
-        sfx_name = c.sfx_file.name if c.sfx_file else "*(Không chèn SFX)*"
-        time_str = f"`{c.offset_seconds:05.2f}s`"
-        vol_str = f"{int(c.volume * 100)}%" if c.volume > 0 else "0%"
-        lines.append(
-            f"| {i+1} | {time_str} | *\"{c.keyword_or_phrase}\"* | **{c.emotion}** | `{c.opportunity_type}` | `{sfx_name}` | {vol_str} - {c.explanation} |"
-        )
+    for i, c in enumerate(cues, start=1):
+        if isinstance(c, SoundEvent):
+            sfx_name = c.sfx_path.name if c.sfx_path else "*(Không chèn SFX)*"
+            time_str = f"`{c.start_time or 0.0:05.2f}s`"
+            vol_str = f"Score: {c.score:.0f} | Vol: {int(c.volume * 100)}%"
+            lines.append(
+                f"| {i} | Cảnh {c.scene_id} | {time_str} | *\"{c.anchor_text}\"* | **{c.emotion}** | `{c.event_type}` | `{sfx_name}` | {vol_str} | {c.reason} |"
+            )
+        else:
+            sfx_name = c.sfx_file.name if c.sfx_file else "*(Không chèn SFX)*"
+            time_str = f"`{c.offset_seconds:05.2f}s`"
+            vol_str = f"{int(c.volume * 100)}%" if c.volume > 0 else "0%"
+            lines.append(
+                f"| {i} | - | {time_str} | *\"{c.keyword_or_phrase}\"* | **{c.emotion}** | `{c.opportunity_type}` | `{sfx_name}` | {vol_str} | {c.explanation} |"
+            )
     return "\n".join(lines)
 
 
